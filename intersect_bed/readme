@@ -1,0 +1,3 @@
+用于计算2个bed文件的overlap
+
+输入文件中需要包含chr-start-end，
