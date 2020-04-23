@@ -10,16 +10,15 @@
 """
 
 import argparse
-from collections import defaultdict
 
 class CheckType(object):
 
     def __init__(self, args):
         self.infile = args['infile']
         self.type = args['type']
-        self.info_list = self.get_info_dict()
+        self.info_list = self.get_info_list()
 
-    def get_info_dict(self):
+    def get_info_list(self):
         info_list = []
         with open(self.infile) as f:
             for line in f:
@@ -90,7 +89,7 @@ if __name__ == "__main__":
     parser.add_argument('infile', help="sample_list")
     parser.add_argument('type', help="fq, ", choices=['nova', 'x-ten'])
     args = vars(parser.parse_args())
-    
+
     main()
 
 
