@@ -19,14 +19,12 @@ print(__doc__)
 
 class Novo2Xten(object):
 
-
     def __init__(self, args):
 
         self.args = args
         self.sample_list = args['sample_list']
         self.out = args["outdir"]
        
-
     def logger(self):
         logging.basicConfig(
             format='[%(asctime)s %(funcName)s %(levelname)s %(message)s]',
@@ -35,9 +33,7 @@ class Novo2Xten(object):
         log = logging.getLogger(__name__)
         return log
 
-
     def print_color(self, text, fg="black", style=""):
-
         fore_map = {
             'red': colorama.Fore.RED,
             'green': colorama.Fore.GREEN,
@@ -63,7 +59,6 @@ class Novo2Xten(object):
             text_new = '{style}' + text_new + '{style_reset}'
 
         return text_new.format(**locals())
-      
 
     def write_p7(self, stat1, pname):
         """ 
@@ -78,7 +73,6 @@ class Novo2Xten(object):
                 p7_str = linelist[3]
                 fw.write(p7_str)
                 break
-
 
     def read_sample_list(self):
         with open(self.sample_list, 'r') as fr:
@@ -132,15 +126,15 @@ class Novo2Xten(object):
                     -d {outad2} \
                 """.format(**locals()))
                 
-                with open(sam + '.sh', 'w') as fw:
+                shell_name = sam + "_" + flowcell + '.sh'
+                with open(shell_name, 'w') as fw:
                     fw.write(cmd)
                 
                 self.logger().info(self.print_color(sam + '.sh', 'green'))
-                os.system("chmod +x  {shell_name}".format(shell_name = sam + '.sh'))
+                os.system("chmod +x  {shell_name}".format(**locals()))
                 self.logger().info(self.print_color("开始生成格式转换脚本", 'yellow'))
                 print('')
                 
-
 
 def main():
 
