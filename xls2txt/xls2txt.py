@@ -2,8 +2,8 @@
 #-*- coding:utf-8 -*-
 
 import openpyxl 
-from openpyxl import load_workbook  #读取excel文件
-from openpyxl import Workbook       # 创建xlsx文件
+from openpyxl import load_workbook    #读取excel文件
+from openpyxl import Workbook         # 创建xlsx文件
 
 
 class ChangeType(object):
