@@ -224,7 +224,6 @@ if __name__ == "__main__":
     parser.add_argument("--infile", help="merged vcf文件, 其实其他注释文件也行啊")
     parser.add_argument("--out", help="输出文件前缀，会在原始文件上添加tag，同时生成每条染色体的统计文件")
 
-
     args = vars(parser.parse_args())
 
     main()
