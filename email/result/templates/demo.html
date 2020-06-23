@@ -1,0 +1,186 @@
+<div>
+    <font size="2" face="YouYuan">hi, 王姗: </font>
+</div>
+<br>
+
+
+<div>
+    项目名称: {{ projname_str }}
+    <br>
+    分期编号：{{ fenqi_str }}
+
+</div>
+<br>
+<br>
+
+
+<div> 
+    <font size="1">
+        <span style="color:green;">
+            <span style="font-weight: bold;">
+                <font face="YouYuan">mapping报告链接如下所示：</font>
+            </span>
+        </span>
+        <br>
+
+        <font face="YouYuan">
+            <span>
+                {{ report }}
+            </span>
+            <br>
+
+            <span>
+                {{ gc }}
+            </span>
+        </font>
+    </font>
+</div>
+<br>
+<br>
+
+<div>
+    <font size="2" face="YouYuan", style="color: red;">质控check指标如下所示: </font>
+</div>
+<div>
+    <span style="font-weight: bold;">
+        <span style="color: green;">
+            <font size="1" face="YouYuan">clean数据量不足12G的样本如下所示：</font>
+        </span>
+    </span>
+</div>
+
+<div>
+    {% for key, value in cleandata_dict.iteritems() %}
+    <font size="1" face="YouYuan">
+    {{ key }}&nbsp&nbsp&nbsp&nbsp&nbsp{{ value }}
+    </font>
+    <br>
+    {% endfor %}
+</div>
+<br>
+<br>
+
+
+<div>
+    <span style="font-weight: bold;">
+        <span style="color: green;">
+            <font size="1" face="YouYuan">q20小于95样本如下所示：</font>
+        </span>
+    </span>
+</div>
+
+<div>
+    {% for key, value in q20_dict.iteritems() %}
+    <font size="1" face="YouYuan">
+    {{ key }}&nbsp&nbsp&nbsp&nbsp&nbsp{{ value }}
+    </font>
+    <br>
+    {% endfor %}
+</div>
+<br>
+<br>
+
+
+<div>
+    <span style="font-weight: bold;">
+        <span style="color: green;">
+            <font size="1" face="YouYuan">q30低于90的样本如下所示：</font>
+        </span>
+    </span>
+</div>
+
+<div>
+    {% for key, value in q30_dict.iteritems() %}
+    <font size="1" face="YouYuan">
+    {{ key }}&nbsp&nbsp&nbsp&nbsp&nbsp{{ value }}
+    </font>
+    <br>
+    {% endfor %}
+</div>
+<br>
+<br>
+
+
+<div>
+    <span style="font-weight: bold;">
+        <span style="color: green;">
+            <font size="1" face="YouYuan">error大于0.1的样本如下所示：</font>
+        </span>
+    </span>
+</div>
+
+<div>
+    {% for key, value in error_dict.iteritems() %}
+    <font size="1" face="YouYuan">
+    {{ key }}&nbsp&nbsp&nbsp&nbsp&nbsp{{ value }}
+    </font>
+    <br>
+    {% endfor %}
+</div>
+<br>
+<br>
+
+
+<div>
+    <font size="2" face="YouYuan" style="color:red">比对check指标如下所示: </font>
+</div>
+<div>
+    <span style="font-weight: bold;">
+        <span style="color: green;">
+            <font size="1" face="YouYuan">dup超过30的样本如下所示：</font>
+        </span>
+    </span>
+</div>
+
+<div>
+    {% for key, value in dup_dict.iteritems() %}
+    <font size="1" face="YouYuan">
+    {{ key }}&nbsp&nbsp&nbsp&nbsp&nbsp{{ value }}
+    </font>
+    <br>
+    {% endfor %}
+</div>
+<br>
+<br>
+
+
+<div>
+    <span style="font-weight: bold;">
+        <span style="color: green;">
+            <font size="1" face="YouYuan">20x小于98的样本如下所示：</font>
+        </span>
+    </span>
+</div>
+
+<div>
+    {% for key, value in _20x_dict.iteritems() %}
+    <font size="1" face="YouYuan">
+    {{ key }}&nbsp&nbsp&nbsp&nbsp&nbsp{{ value }}
+    </font>
+    <br>
+    {% endfor %}
+</div>
+<br>
+<br>
+
+<p>
+    <span style="color: red;font-weight: bold;font-size: medium;">
+    其他指标请自行check
+    </span>
+    <br>
+    <br>
+
+<div>
+
+{% if test_dict %}
+    {% for k, v in test_dict.iteritems() %}
+    {{ k }} : {{ v }}
+    {% endfor %}
+{% else %}
+    test_dict 是空的
+{% endif %}
+</div>
+
+
+<span>祝好~</span>
+</p>
