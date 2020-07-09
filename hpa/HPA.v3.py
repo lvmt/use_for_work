@@ -170,7 +170,11 @@ class HPA(object):
                         print('\033[32样本不在输入的info文件中，请检查\033[0m')
                     fw.write("\t".join(linelist) + '\n')
         else:
-            os.system('cp {0} {1}'.format(self.out + '.vcf.plink.ped', self.out + '.vcf.final.plink.ped'))
+            with open(self.out + '.vcf.plink.ped', 'r') as fr, open(self.out + '.vcf.final.plink.ped', 'w') as fw:
+                for line in fr:
+                    linelist = line.strip().split(' ')
+                    linelist[5] = '0'   # 默认输出的pheno为-9，后续无法识别出来
+                    fw.write('\t'.join(linelist) + '\n')
 
     def change_sex(self, sex):
         if sex.lower() in ('m', 'male'):
