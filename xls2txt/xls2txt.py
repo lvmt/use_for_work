@@ -48,9 +48,9 @@ def main():
 if __name__ == "__main__":
     import argparse 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", help="原格式文件")
-    parser.add_argument("--target", help="想要转换的格式文件")
-    parser.add_argument("--type", help="请输入想要转换的格式", choices=["x2t", "t2x"])
+    parser.add_argument("source", help="原格式文件")
+    parser.add_argument("target", help="想要转换的格式文件")
+    parser.add_argument("type", help="请输入想要转换的格式", choices=["x2t", "t2x"])
 
     args = vars(parser.parse_args())
 

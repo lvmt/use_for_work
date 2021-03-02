@@ -4,6 +4,7 @@
 import re 
 import logging
 from collections import defaultdict
+import time
 
 
 
@@ -102,7 +103,7 @@ class UPD(object):
         family_info = defaultdict(dict)
         stat_info = defaultdict(dict)
   
-        self.logger().info(" ========== 开始初始化family_inf和stat_info文件 ==============")
+        # self.logger().info(" ========== 开始初始化family_info和stat_info文件 ==============")
 
         with open(self.sample_info, 'r') as fr:
             for line in fr:
@@ -130,8 +131,8 @@ class UPD(object):
             for chr in range(1, 23):
                 stat_info[famid][str(chr)] = {"total": 0, "UN":0, "UA": 0, "UI": 0 , "BI": 0}
 
-        self.logger().info('====== family_info 初始化结果 ====== ：\n{family_info}'.format(**locals()))
-        self.logger().info('====== stat_info 初始化结果 ====== ：\n{stat_info}'.format(**locals()))
+        # self.logger().info('====== family_info 初始化结果 ====== ：\n{family_info}'.format(**locals()))
+        # self.logger().info('====== stat_info 初始化结果 ====== ：\n{stat_info}'.format(**locals()))
         return family_info, stat_info
 
     def analysis_upd(self):
@@ -161,7 +162,7 @@ class UPD(object):
                         family_info[famid]['proband']['index'] = linelist.index(family_info[famid]['proband']['name'])
                         family_info[famid]['pa']['index'] = linelist.index(family_info[famid]['pa']['name'])
                         family_info[famid]['ma']['index'] = linelist.index(family_info[famid]['ma']['name'])
-                    self.logger().info("======== family_info 字典加载完成，增加样本index信息 =========")
+                    # self.logger().info("======== family_info 字典加载完成，增加样本index信息 =========")
                     print(family_info)
 
                 else:
@@ -178,6 +179,11 @@ class UPD(object):
                             gt_ma = linelist[family_info[famid]['ma']['index']].split(":")[gtindex]
                             upd = self.get_upd_tag(gt_proband, gt_pa, gt_ma)
                             
+                            if upd == "noVariant":
+                                print("\033[32m这是个noVariant点，跳过\033[0m")  # 输出 noVariant 点，但是不进行统计
+                                time.sleep(1)
+                                continue
+                    
                             self.logger().info("该位点的UPD类型为[proband/pa/ma] {upd} {gt_proband} {gt_pa} {gt_ma} || {chrom} {pos} ".format(**locals()))
                             tag.append(upd + '_' + famid)    # upd: UI_famid
                             stat_info[famid][chrom]["total"] += 1
@@ -193,7 +199,7 @@ class UPD(object):
                         fo.write("\t".join(outlist)+"\n")
             
             ## 输出统计文件
-            self.logger().info("====== stat_info 文件加载完成 ======\n{stat_info}".format(**locals()))
+            # self.logger().info("====== stat_info 文件加载完成 ======\n{stat_info}".format(**locals()))
             fostat.write("\t".join(["FamID","CHR","Total","UI","UIperc","UA","UAperc","BI","BIperc","UN","UNperc"])+"\n")
             for famid in family_info:
                 for ichr in [str(i) for i in range(1, 22+1)]:
@@ -223,6 +229,7 @@ if __name__ == "__main__":
     parser.add_argument("--sample_info", help="sample_info文件，暂时先一个家系一个sample_info吧")
     parser.add_argument("--infile", help="merged vcf文件, 其实其他注释文件也行啊")
     parser.add_argument("--out", help="输出文件前缀，会在原始文件上添加tag，同时生成每条染色体的统计文件")
+
 
     args = vars(parser.parse_args())
 

@@ -22,7 +22,6 @@ class ExtractPath(object):
         self.sam_lists = []
         self.sample_info_dict = self.get_sample_info_dict() if self.sampleinfo else {}
         
-
     def x2t(self):
         '''将下机单进行格式转换
         xlsx转换为文本文件,只保留需要的行文件
@@ -130,7 +129,6 @@ class ExtractPath(object):
 
         return standername
 
-
     def extract_target_path(self):
         '''提取指定分期编号的sample_list文件
         novoid一样，但是samid不一样，警告提醒
@@ -183,10 +181,6 @@ class ExtractPath(object):
         else:
             print('\033[1;33m没有进行校正标准名称\033[0m')
 
-
-        #return waring_message
-
-
     def start(self):
         self.x2t()
         self.get_target_sam_lists() 
@@ -201,7 +195,6 @@ class ExtractPath(object):
             print('\033[1;32m结果文件: {self.result}\033[0m'.format(**locals()))
 
         
-
 
 if __name__ == '__main__':
     import argparse
