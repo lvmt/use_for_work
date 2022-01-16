@@ -1,0 +1,78 @@
+pattern1:
+  +:
+    right:  ^GT
+  -:
+    left: ^AC
+
+pattern2:
+  +:
+    right:  ^T
+  -:
+    left: A$
+
+pattern3:
+  +:
+    left: ^AG
+  -:
+    right: ^CT
+
+pattern4:
+  +: 
+    left: A$
+  -:
+    right: ^T
+
+pattern5:
+  +:
+    ins: ^GT
+  -:
+    ins: ^GT
+
+pattern6:
+  +:
+    ins: ^T
+  -: 
+    ins: ^T
+
+pattern7:
+  +:
+    ins: A$
+  -:
+    ins: A$
+
+pattern8:
+  +:
+    ins: AG$
+  -:
+    ins: AG$
+
+pattern17:
+  +:
+    ins: AG$
+  -:
+    ins: AG$
+
+pattern18:
+  +:
+    ins: ^GT
+  -:
+    ins: ^GT
+
+pattern19:
+  +:
+    left: ^AG
+  -:
+    right: ^CT
+
+pattern21:
+  +:
+    right: ^GT
+  -:
+    left: ^AC
+
+pattern22:
+  +:
+    left: ^AG
+  -:
+    right: ^CT
+

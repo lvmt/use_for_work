@@ -1,0 +1,40 @@
+# according phgvs
+delins:
+    EGFR:
+        - EX19
+        - EX20
+    ERBB2:
+        EX20
+    HER2:
+        EX20
+    KIT:
+        - EX9
+        - EX11
+
+# func 
+special_func:
+    - splice-3
+    - splice-5
+    - span
+
+splice-3:
+    MET:
+        - IVS13
+        - IVS13-EX14
+        - EX14-IVS14
+        - IVS14
+        
+splice-5:
+    MET:
+        - IVS13
+        - IVS13-EX14
+        - EX14-IVS14
+        - IVS14
+
+span:
+    MET:
+        - IVS13
+        - IVS13-EX14
+        - EX14-IVS14
+        - IVS14
+
