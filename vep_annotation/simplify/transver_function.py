@@ -21,9 +21,12 @@ protein_altering_variant：第一优先级,需要根据氨基酸的phgvs进行�
 '''
 
 
+from ast import arg
+from sqlalchemy import desc
 import yaml
 import re
 # from simplify import simplify_vep_annotation
+# import utils  
 
 
 
@@ -40,10 +43,9 @@ class TransverFunction:
         vep的注释结果可能存在多个,需要简化成为一个
         '''
         #因为splice_region_variant是个陪衬,先清除掉
-        vep_function = vep_function.replace('splice_region_variant', '')
-        vep_function = vep_function.strip(',') # 去除多余的分隔符 &
+        vep_function = vep_function.replace('splice_region_variant', '').strip(',')
+        func_list = list(filter(str, vep_function.split(','))) # 去除多余的分隔符 &
 
-        func_list = vep_function.split(',')
         if len(func_list) == 1 and gene == 'TERT' and tert.startswith('NM'):
             return 'promter'
         elif len(func_list) == 1:
@@ -57,7 +59,7 @@ class TransverFunction:
         1.有时候2个注释也会是span，因为跨过了不同的编码区域
         2.根据function的优先级,返回优先级较高的func信息
         '''
-        region_set = set()
+        region_set = set()  # 存储func的exon or intro信息
         func_region_info = yaml.load(open(self.vep_function_yaml))['FuncRegion']
         func_priority = yaml.load(open(self.vep_function_yaml))['Priority']
 
@@ -67,10 +69,15 @@ class TransverFunction:
         if len(region_set) > 1:
             return 'span'
         else:
-            if func_priority[func_list[0]] < func_priority[func_list[1]]:
-                return func_list[0]
-            else:
-                return func_list[1]
+            # 可能存在3个或者多个相同的region
+            # frameshift/start-lost/start-retained
+            # 选取其中优先级数值最小的func作为最优func
+            better_func = func_list[0]
+            for func in func_list:
+                if func_priority[func] < func_priority[better_func]:
+                    better_func = func
+            
+            return better_func
 
 
     def vep2bgi(self, simplify_vep_func, hgvsc, hgvsp, ref, alt):
@@ -78,16 +85,19 @@ class TransverFunction:
         优先处理protein_altering_variant
         优先处理coding_sequence_variant
         对于span需要进行再次矫正
+        对于splice,由于存在特殊情况,因此也需要进行再次矫正
         '''
         vep2bgi_info = yaml.load(open(self.vep_function_yaml))['vep2BGI']
 
         if simplify_vep_func == 'protein_altering_variant':
             return self.handle_protein_altering_variant_from_hgvsp(hgvsp, ref, alt)
         elif simplify_vep_func == 'coding_sequence_variant':
-            return 'coding_sequence_variant'
-            # return self.handle_coding_sequence_variant_from_chgvs_phgvs(hgvsc, hgvsp)
+            # return 'coding_sequence_variant'
+            return self.handle_coding_sequence_variant_from_chgvs_phgvs(hgvsc, hgvsp, ref, alt)
         elif simplify_vep_func == 'span':
             return self.correct_span(hgvsp, ref, alt)
+        elif simplify_vep_func.startswith('splice'):
+            return self.correct_splice(hgvsc)
         else:
             return vep2bgi_info[simplify_vep_func]
 
@@ -109,19 +119,24 @@ class TransverFunction:
             elif len(ref) < len(alt):
                 return 'cds-ins'
             else:
-                return 'null'
+                return 'missense'  # 氨基酸已经发生变化，20220217
         elif 'del' in hgvsp:
             return 'cds-del'
         elif 'ins' in hgvsp:
             return 'cds-ins'
+        elif '=' in hgvsp:
+            return 'coding-synon'
+        elif re.search(r'[A-Za-z]+\d*[A-Za-z]+', hgvsp):
+            return 'missense'
+            # chr8_145738769_G/A
+            # splice_acceptor_variant,missense_variant
         else:
             return 'null'
 
 
     def handle_coding_sequence_variant_from_chgvs_phgvs(self, hgvsc, hgvsp, ref, alt):
         '''
-        神马玩意
-        竟然单独出现了coding_sequence_variant
+        coding_sequence_variant
         决策就是根据chgvs和phgvs进行判断
         若存在phgvs,则利用handle_proten***这个函数进行判断
         否则按照chgvs进行判断
@@ -131,17 +146,17 @@ class TransverFunction:
         '''
         if not hgvsp == '-':
             return self.handle_protein_altering_variant_from_hgvsp(hgvsp, ref, alt)
-        else:
+        elif not hgvsc == '-':
+            # 因为注释为coding_sequence,必定有一端位于exon区域
+            # 基于chgvs进行判断，可能存在的情况: span, 
             # 内含子区域或者剪切区
-            flag, num = re.search(r'([+-])(\d+)[A-Z]', hgvsc).groups()
-            if int(num) > 2:
-                return 'intron'
-            elif flag == '+':
-                return 'splice-5'
-            elif flag == '-':
-                return 'splice-3'
+            if re.findall(r'[+-][0-9]', hgvsc):
+                return 'span'
             else:
                 return 'null'
+        else:
+            return 'null'
+            
 
             
     def correct_span(self, hgvsp, ref, alt):
@@ -155,3 +170,62 @@ class TransverFunction:
             return 'span'
         else:
             return self.handle_protein_altering_variant_from_hgvsp(hgvsp, ref, alt)
+
+
+    def correct_splice(self, hgvsc):
+        # 大数据量测试过程中发现, 存在一下情况
+        # splice_donor_variant,intron_variant -> NM_006437.3:c.3285+3_3285+5del
+        # NM_014727.1:c.3059-11del（不可以匹配成-1）！！！
+        if re.findall(r'[+][1-2][^0-9]', hgvsc):
+            return 'splice-5'
+        elif re.findall(r'[-][1-2][^0-9]', hgvsc):
+            return 'splice-3'
+        else:
+            return 'intron'
+
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='test')
+    parser.add_argument('--infile')
+    parser.add_argument('--result')
+    parser.add_argument('--vep_function_yaml', help='func 配置文件')
+    args = vars(parser.parse_args())
+
+    infile = args['infile']
+    result = args['result']
+
+    with open(infile, 'r') as fr, open(result, 'w') as fw:
+        for line in fr:
+            linelist = line.strip('\n').split('\t')
+            if line.startswith('#'):
+                head_index = utils.get_head_index(linelist)
+                fw.write('{}\tvep_simple\tbgi_func\n'.format('\t'.join(linelist)))
+                continue
+
+            nm = linelist[head_index['feature']]
+            if not nm.startswith('NM'):
+                continue
+
+            gene = linelist[head_index['symbol']]
+            upload_variation = linelist[head_index['#Uploaded_variation'.lower()]]
+            vep_function = linelist[head_index['consequence']]
+            chgvs = linelist[head_index['hgvsc']]
+            phgvs = linelist[head_index['hgvsp']]
+            tert = linelist[head_index['tert']]
+            
+
+            hgvsc = utils.simplify_hgvsc(gene, chgvs, tert)
+            hgvsp = utils.simplify_hgvsp(phgvs) 
+            ref, alt = utils.get_ref_alt_from_upload_variation(upload_variation)
+            vep_simple_function = TransverFunction(**args).simplify_function(vep_function, tert, gene)
+            vep2bgicg_function = TransverFunction(**args).vep2bgi(vep_simple_function, hgvsc, hgvsp, ref, alt)
+
+            fw.write('{}\t{}\t{}\n'.format('\t'.join(linelist), vep_simple_function, vep2bgicg_function))
+
+
+
+
+            
+

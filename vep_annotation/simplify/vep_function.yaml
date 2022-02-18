@@ -9,9 +9,9 @@ vep2BGI:
     inframe_deletion: cds-del
     missense_variant: missense
     protein_altering_variant: '*'
-    incomplete_terminal_codon_variant: '*'
+    incomplete_terminal_codon_variant: incomplete_terminal_codon_variant
     start_retained_variant: start_retained_variant
-    stop_retained_variant: stop_retained_variant
+    stop_retained_variant: coding-synon
     synonymous_variant: coding-synon
     coding_sequence_variant: '*'
     5_prime_UTR_variant: 5_prime_UTR_variant
@@ -24,16 +24,19 @@ vep2BGI:
     promter: promter
     null: null
 FuncRegion:
+    transcript_ablation: exon
     splice_acceptor_variant: intro
     splice_donor_variant: intro 
     stop_gained: exon
     frameshift_variant: exon
     stop_lost: exon
     start_lost: exon
+    transcript_amplification: exon
     inframe_insertion: exon
     inframe_deletion: exon
     missense_variant: exon
     protein_altering_variant: exon
+    incomplete_terminal_codon_variant: exon
     start_retained_variant: exon
     stop_retained_variant: exon
     synonymous_variant: exon
@@ -61,3 +64,6 @@ Priority:
     '3_prime_UTR_variant': 7
     'splice_region_variant': 8
     'coding_sequence_variant': 8
+    'start_retained_variant': 9
+    'stop_retained_variant': 9
+    'incomplete_terminal_codon_variant': 10
