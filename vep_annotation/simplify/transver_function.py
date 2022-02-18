@@ -22,6 +22,7 @@ protein_altering_variant：第一优先级,需要根据氨基酸的phgvs进行�
 
 
 from ast import arg
+from distutils.spawn import spawn
 from sqlalchemy import desc
 import yaml
 import re
@@ -143,19 +144,43 @@ class TransverFunction:
         c.3727_3727+1delinsAC 
         好像还有更复杂的格式问题，需要解决：20211117
         这个也有部分问题待解决
-        '''
+        ''' 
         if not hgvsp == '-':
             return self.handle_protein_altering_variant_from_hgvsp(hgvsp, ref, alt)
         elif not hgvsc == '-':
-            # 因为注释为coding_sequence,必定有一端位于exon区域
+            # 因为注释为coding_sequence,
             # 基于chgvs进行判断，可能存在的情况: span, 
             # 内含子区域或者剪切区
-            if re.findall(r'[+-][0-9]', hgvsc):
-                return 'span'
+            # 更具chgvs进行判断：优先根据_进行判断,是否存在多碱基的del等
+            region_tag = set()
+            hgvsc = hgvsc.split('c.')[-1].split('_')
+            # 只有1个
+            if len(hgvsc) == 1:
+                # if re.search(r'(\d+)[-][12][^0-9]', hgvsc[0]):
+                if re.search(r'(\d+)[-][12]($|[a-zA-Z])', hgvsc[0]):
+                    return 'splice-3'
+                elif re.search(r'(\d+)[+][12]($|[a-zA-Z])', hgvsc[0]):
+                    return 'splice-5'
+                elif re.search(r'(\d+)[+-][3-9]*', hgvsc[0]):
+                    return 'intro'
+                else:
+                    return 'null'
             else:
-                return 'null'
-        else:
-            return 'null'
+                # 特例：NM_001081640.2:c.3727+1_3728-1insT
+                for item in hgvsc:
+                    if '-' in item or '+' in item:
+                        region_tag.add('intro')
+                    else: 
+                        region_tag.add('exon')
+
+                if len(region_tag) > 1:
+                    return 'span'
+                else:
+                    # 多个区间信息,没有氨基酸注释,不会是fs,missense
+                    if re.findall('(\d+)[+-][12]($|[a-zA-Z])', hgvsc[0]):
+                        return 'splice-5'
+                    else:
+                        return 'intro'
             
 
             
