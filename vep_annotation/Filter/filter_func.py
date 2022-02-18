@@ -8,6 +8,7 @@
 '''
 
 
+from numpy import save
 import yaml
 import re
 from utils import utils
@@ -35,25 +36,28 @@ class FilterFunc:
     def save_span(self, chgvs, bgi_func):
         '''只保留特定类型的span
         只要其中一端位于保留区域即可以保留（基于chgvs）
-        p = re.compile(r'c\.([\+-]*)(\d*)([\+-]*)(\d*)')
-        c.+100/c.-100 直接不要
+        c.*100/c.-100 直接不要
         c.100+x (x<=2保留, 其他不要)
         '''
-        if bgi_func == 'span' and chgvs == '-':  # 有些span可能没有chgvs注释
+        if bgi_func == 'span' and chgvs == '-':  # 有些span可能没有chgvs注释,多位于UTR区域
             return False
 
+        splice_p = re.compile(r'(\d+)[+-][12]($|[a-zA-Z])')  # 满足条件的+-1/2; 100-2或者100-2delins
+        exon_p = re.compile(r'(\d+)($|[a-zA-Z])')  # 满足条件的exon; 100或者100delins
+
         if bgi_func == 'span':
-            pattern = re.compile(r'([\+-]*)(\d+)([\+-]*)(\d*)')
-            chgvs = chgvs.split('_')
             save_tag = []  # 记录span两端是否位于保留区域
+            chgvs = chgvs.split('c.')[-1].split('_')
+
             for item in chgvs:
-                result = re.search(pattern, item).groups()
-                if result[0] in ('-', '+'):
-                    save_tag.append(False)
-                elif result[2] in ('+', '-') and int(result[-1]) > 2:
-                    save_tag.append(False)
-                else:
+                if item.startswith('-') or item.startswith('*'):  # UTR区域,不参与判断
+                    continue
+                if ('-' in item or '+' in item) and re.findall(splice_p, item):
                     save_tag.append(True)
+                elif (not '-' in item) and (not '+' in item) and re.findall(exon_p, item):
+                    save_tag.append(True)
+                else:
+                    save_tag.append(False)
 
             if any(save_tag): # 任何一端位于保留区域,均保留下来
                 return True
@@ -78,7 +82,6 @@ class FilterFunc:
                     continue
                 linelist = line.strip('').split('\t')
                 bgi_func = linelist[head_index['bgi_function']]  # nonsense
-                chgvs = linelist[head_index['hgvsc']]
                 gene = linelist[head_index['hugo_symbol']] # TERT
                 chgvs = linelist[head_index['hgvsc']] # c.-146C>T
 
