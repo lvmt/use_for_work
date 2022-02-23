@@ -19,6 +19,9 @@
 
 
 
+from threading import local
+
+
 class NewFunction:
 
     # 按照行的格式进行处理
@@ -51,12 +54,16 @@ class NewFunction:
     def handle_splice(self):
         if self.splice_affect == 'Y' and self.end_exon == 'N':
             return '{self.func}-Y'.format(**locals())
+        elif self.splice_affect == 'Y' and self.end_exon == 'Y':
+            return '{self.func}-N'.format(**locals())
         return self.func
 
 
     def handle_span(self):
         if self.splice_affect == 'Y' and self.end_exon == 'N':
             return '{self.func}-Y'.format(**locals())
+        elif self.splice_affect == 'Y' and self.end_exon == 'Y':
+            return '{self.func}-N'.format(**locals())
         return self.func
 
 
