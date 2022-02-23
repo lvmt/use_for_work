@@ -83,17 +83,23 @@ pattern16 = re.compile(r'c.(\d+)-1[A-Z]>')   # c.111-1G>A
 #################################################################
 ################### span类型 可能存在情况枚举 #####################
 
-## span: delins 
-pattern17 = re.compile(r'c.(\d+)-\d+_(\d+)delins')    # c.111-4_115delins (span)
-pattern18 = re.compile(r'c.(\d+)_(\d+)\+\d+delins')   # c.88_95+3delins   (span)
+# ## span: delins 
+# pattern17 = re.compile(r'c.(\d+)-\d+_(\d+)delins')    # c.111-4_115delins (span)
+# pattern18 = re.compile(r'c.(\d+)_(\d+)\+\d+delins')   # c.88_95+3delins   (span)
  
+# ## span: del （pattern19和pattern22存在歧义：无法确定右端是位于紧邻exon,还是下下个exon）
+# pattern19 = re.compile(r'c.(\d+)-\d+_(\d+)del')           # c.111-4_115del (span)
+# pattern20 = re.compile(r'c.(\d+)-\d+_(\d+)\+\d+del')      # c.111-4_200+5del  (span,跨越exon) 
+# pattern21 = re.compile(r'c.(\d+)_(\d+)\+\d+del')          # c.98_110+4del 
+# pattern22 = re.compile(r'c.(\d+)\+\d+_(\d+)del')          # c.111+30_120del
+# pattern23 = re.compile(r'c.(\d+)\+\d+_(\d+)\+\d+del')     # c.110+3_300+5del (span, 跨越exon)
 
-## span: del （pattern19和pattern22存在歧义：无法确定右端是位于紧邻exon,还是下下个exon）
-pattern19 = re.compile(r'c.(\d+)-\d+_(\d+)del')           # c.111-4_115del (span)
-pattern20 = re.compile(r'c.(\d+)-\d+_(\d+)\+\d+del')      # c.111-4_200+5del  (span,跨越exon)
-pattern21 = re.compile(r'c.(\d+)_(\d+)\+\d+del')          # c.98_110+4del 
-pattern22 = re.compile(r'c.(\d+)\+\d+_(\d+)del')          # c.111+30_120del
-pattern23 = re.compile(r'c.(\d+)\+\d+_(\d+)\+\d+del')     # c.110+3_300+5del (span, 跨越exon)
+## 20220223 debug
+## delins和del采取相同的pattern
+pattern17 = re.compile(r'(\d+)[+-]\d+_(\d+)[a-zA-Z]')  # c.212-4_213del; c.4206+2_4206del
+pattern18 = re.compile(r'(\d+)[+-]\d+_(\d+)[+-]\d+') # 跨越exon, 直接影响剪切
+pattern19 = re.compile(r'(\d+)_(\d+)[+-]\d+') # c.4197_4206+27del; c.139_156-28del
+pattern20 = p4 = re.compile(r'(\d+)_(\d+)') # 跨越内含子，两端位于不同的exon上， 直接影响剪切
 
 
 splice_info = {
@@ -125,22 +131,14 @@ splice_info = {
 
 
 span_info = {
-    'delins': {
-        'pattern17': pattern17,
-        'pattern18': pattern18,
-    },
-
-    'del': {
-        'pattern19': pattern19,
-        'pattern20': pattern20,
-        'pattern21': pattern21,
-        'pattern22': pattern22,
-        'pattern23': pattern23
-    }
+    'pattern17': pattern17,
+    'pattern18': pattern18,
+    'pattern19': pattern19,
+    'pattern20': pattern20,
 }
 
 
-affect_pattern_list = ['pattern9', 'pattern11', 'pattern13', 'pattern14', 'pattern15', 'pattern16', 'pattern20', 'pattern23']
+affect_pattern_list = ['pattern9', 'pattern11', 'pattern13', 'pattern14', 'pattern15', 'pattern16', 'pattern18', 'pattern20', ]
 not_affect_pattern_list = ['pattern10', 'pattern12']
 
 
@@ -234,7 +232,7 @@ class SpliceAffectCheck:
 
     def handle_span_func(self, muttype, pattern_config):
 
-        pattern_info = span_info[muttype]
+        pattern_info = span_info
         target_pattern = self.get_target_pattern(pattern_info)  # 字符串
         # print('测试:', target_pattern)
 
@@ -259,8 +257,10 @@ class SpliceAffectCheck:
         if not (abs(int(pos1) - int(pos2)) + 1) % 3 == 0:
             return 'Y'
         else:
-            key = list(pattern_config[target_pattern][self.strand].keys())[0]  # left, right, ins
-            value = list(pattern_config[target_pattern][self.strand].values())[0] # 序列信息 ^T, $A等
+            key = list(pattern_config[target_pattern][self.strand].keys())[0]  # left, right, ins（默认为left或者right）
+            if muttype == 'delins':
+                key == 'ins'
+            value = pattern_config[target_pattern][self.strand][key] # 序列信息 ^T, $A等
 
             if re.search(r'{value}'.format(**locals()), base_info[key]):
                 return 'N'

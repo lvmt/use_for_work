@@ -48,31 +48,42 @@ pattern8:
 
 pattern17:
   +:
+    left: ^AG
     ins: AG$
   -:
+    right: ^CT
     ins: AG$
-
-pattern18:
-  +:
-    ins: ^GT
-  -:
-    ins: ^GT
 
 pattern19:
   +:
-    left: ^AG
-  -:
-    right: ^CT
-
-pattern21:
-  +:
     right: ^GT
+    ins: ^GT
   -:
     left: ^AC
+    ins: ^GT
 
-pattern22:
-  +:
-    left: ^AG
-  -:
-    right: ^CT
+
+# pattern18:
+#   +:
+#     ins: ^GT
+#   -:
+#     ins: ^GT
+
+# pattern19:
+#   +:
+#     left: ^AG
+#   -:
+#     right: ^CT
+
+# pattern21:
+#   +:
+#     right: ^GT
+#   -:
+#     left: ^AC
+
+# pattern22:
+#   +:
+#     left: ^AG
+#   -:
+#     right: ^CT
 
