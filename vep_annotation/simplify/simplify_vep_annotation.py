@@ -59,7 +59,7 @@ class SimpleVep:
         input:
             self.transcript: gene transcript
         output:
-            list: [gene=trans, gene=trans]
+            list: [trans1, trans2]
         '''
         tran_relation = []
         with utils.safe_open(args['transcript_data'], 'r') as fr:
@@ -69,9 +69,9 @@ class SimpleVep:
                     head_index = utils.get_head_index(line)
                     continue
                 linelist = line.strip('\n').split('\t')
-                gene = linelist[head_index['#gene']]
+                # gene = linelist[head_index['#gene']]
                 tran = linelist[head_index['transcript']]
-                tran_relation.append('{gene}={tran}'.format(**locals()))
+                tran_relation.append('{tran}'.format(**locals()))
         
         return tran_relation
 
@@ -110,7 +110,7 @@ class SimpleVep:
                 transcript = linelist[head_index['feature']] # NM_198253.3
                 
                 #提取基因指定的转录本注释信息
-                if not '{gene}={transcript}'.format(**locals()) in tran_relation:
+                if not '{transcript}'.format(**locals()) in tran_relation:
                     continue
 
                 #获取需要的信息
