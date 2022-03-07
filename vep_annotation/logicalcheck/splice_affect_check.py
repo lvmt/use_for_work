@@ -37,47 +37,27 @@ import yaml
 ############### 可能存在的情况枚举 ################
 
 ## splice: del 类
-# pattern1 = re.compile(r'c.(\d+)\+1_(\d+)\+\d+del')      # c.111+1_111+5del
-# pattern2 = re.compile(r'c.(\d+)\+2_(\d+)\+\d+del')      # c.111+2_111+5del
-# pattern3 = re.compile(r'c.(\d+)-\d+_(\d+)-1del')        # c.222-5_222-1del
-# pattern4 = re.compile(r'c.(\d+)-\d+_(\d+)-2del')        # c.222-5_222-2del
-
 pattern1 = re.compile(r'c.(\d+)\+1[_]*(\d*)\+*\d*del')      #c.111+1_111+5del, c.111+1del
 pattern2 = re.compile(r'c.(\d+)\+2[_]*(\d*)\+*\d*del')      # c.111+2_111+5del, c.111+2del 
 pattern3 = re.compile(r'c.(\d*)-*\d*[_]*(\d+)-1del')        # c.222-5_222-1del, c.222-1del
 pattern4 = re.compile(r'c.(\d*)-*\d*[_]*(\d+)-2del')        # c.222-5_222-2del, c.222-2del
-# pattern13 = re.compile(r'c.(\d+)\+1del')                  # c.111+1del
-# pattern14 = re.compile(r'c.(\d+)\+2del')                  # c.111+2del
-# pattern15 = re.compile(r'c.(\d+)-1del')                   # c.222-1del
-# pattern16 = re.compile(r'c.(\d+)-2del')                   # c.222-2del
-
 
 ## splice: delins 类
 # 只要是发生在splice区域的delins，都会影响剪切
-# pattern2 = re.compile(r'c.(\d+)\+1_(\d+)\+(\d)delins')   # c.111+1_111+5delins
-# pattern5 = re.compile(r'c.(\d+)-(\d+)_(\d)-1delins')     # c.222-5_222-1delins
-# pattern17 = re.compile(r'c.(\d+)\+1delins')              # c.111+1delins
-# pattern20 = re.compile(r'c.(\d+)-1delins')               # c.222-1delins
-# pattern21 = re.compile(r'c.(\d+)\+2delins')              # c.111+2delins
-# pattern21 = re.compile(r'c.(\d+)-2delins')               # c.222-2delins
-
 
 ## splice: ins类
-pattern5 = re.compile(r'c.(\d+)_(\d+)\+1ins')     # c.111_111+1ins
+pattern5 = re.compile(r'c.(\d+)_(\d+)\+1ins')     # c.111_111+1ins  # 实际上是fs,vep不会认为是个splice
 pattern6 = re.compile(r'c.(\d+)\+1_(\d+)\+2ins')  # c.111+1_111+2ins
 pattern7 = re.compile(r'c.(\d+)-2_(\d+)-1ins')    # c.222-2_222-1ins
-pattern8 = re.compile(r'c.(\d+)-1_(\d+)ins')      # c.222-1_222ins 
-pattern9 = re.compile(r'c.(\d+)\+1dup')           # c.222+1dup
-pattern10 = re.compile(r'c.(\d+)\+2dup')          # c.222+2dup
-pattern11 = re.compile(r'c.(\d+)-1dup')           # c.333-1dup
-pattern12 = re.compile(r'c.(\d+)-2dup')           # c.333-2dup
-
+pattern8 = re.compile(r'c.(\d+)-1_(\d+)ins')      # c.222-1_222ins #实际上是fs, vep不会认为是个splice
+pattern9 = re.compile(r'c.(\d+)[+-]1dup')           # c.222+1dup, 一定影响剪切
+pattern10 = re.compile(r'c.(\d+)\+2dup')          # c.222+2dup # 实际上是个intro
+# pattern11 = re.compile(r'c.(\d+)-1dup')           # c.333-1dup
+pattern12 = re.compile(r'c.(\d+)-2dup')           # c.333-2dup # 实际上是个intro
 
 ## splice: snp 类
-pattern13 = re.compile(r'c.(\d+)\+2[A-Z]>')  # c.111+2T>C
-pattern14 = re.compile(r'c.(\d+)\+1[A-Z]>')  # c.111+1G>A
-pattern15 = re.compile(r'c.(\d+)-2[A-Z]>')   # c.111-2A>C
-pattern16 = re.compile(r'c.(\d+)-1[A-Z]>')   # c.111-1G>A
+pattern13 = re.compile(r'c.(\d+)[+-][12][A-Z]>')  # c.111+2T>C, 一定影响剪切
+
 
 
 #################################################################
@@ -138,7 +118,7 @@ span_info = {
 }
 
 
-affect_pattern_list = ['pattern9', 'pattern11', 'pattern13', 'pattern14', 'pattern15', 'pattern16', 'pattern18', 'pattern20', ]
+affect_pattern_list = ['pattern9', 'pattern13', 'pattern18', 'pattern20', ]
 not_affect_pattern_list = ['pattern10', 'pattern12']
 
 
