@@ -76,9 +76,10 @@ pattern13 = re.compile(r'c.(\d+)[+-][12][A-Z]>')  # c.111+2T>C, 一定影响剪�
 
 ## 20220223 debug
 ## delins和del采取相同的pattern
-pattern17 = re.compile(r'(\d+)[+-]\d+_(\d+)[a-zA-Z]')  # c.212-4_213del; c.4206+2_4206del
-pattern18 = re.compile(r'(\d+)[+-]\d+_(\d+)[+-]\d+') # 跨越exon, 直接影响剪切
-pattern19 = re.compile(r'(\d+)_(\d+)[+-]\d+') # c.4197_4206+27del; c.139_156-28del
+## 2022-03-07：需要考虑插入碱基长度为1的情况.
+pattern17 = re.compile(r'(\d+)[+-]\d+_(\d+)[a-zA-Z]')  # c.212-4_213del; c.4206+2_4206del, sample1 & sample2
+pattern18 = re.compile(r'(\d+)[+-]\d+_(\d+)[+-]\d+') # 跨越exon, 直接影响剪切, sample3,4,5,6
+pattern19 = re.compile(r'(\d+)_(\d+)[+-]\d+') # c.4197_4206+27del; c.139_156-28del, sample7 & sample8
 pattern20 = p4 = re.compile(r'(\d+)_(\d+)') # 跨越内含子，两端位于不同的exon上， 直接影响剪切
 
 
@@ -138,6 +139,8 @@ class SpliceAffectCheck:
             return False
         return True
 
+    def get_reverser_com(self, base):
+        return base[::-1].replace('A', 't').replace('T', 'a').replace('G', 'c').replace('C', 'g').upper()
 
     def get_target_pattern(self, pattern_info):
         '''
@@ -222,10 +225,17 @@ class SpliceAffectCheck:
         if muttype == 'delins':
             ins = re.search(r'delins([a-zA-Z]+)', self.chgvs).group(1)
 
+        if self.strand == '-':
+            ins = self.get_reverser_com(ins)  # 因为后续需要与侧翼序列进行加法运算,而侧翼序列是基于位置的。
+        
+
         base_info = {
             'left': left,
             'right': right,
-            'ins': ins
+            'left_ins': left + ins,
+            'ins_left': ins + left,
+            'ins_right': ins + right,
+            'right_ins': right + ins   # 基于yaml中的key,进行不同的判断
         }
 
         ## 优先判断是否为3的倍数 
@@ -235,7 +245,7 @@ class SpliceAffectCheck:
         else:
             key = list(pattern_config[target_pattern][self.strand].keys())[0]  # left, right, ins（默认为left或者right）
             if muttype == 'delins':
-                key == 'ins'
+                key = list(pattern_config[target_pattern][self.strand].keys())[-1] ## 
             value = pattern_config[target_pattern][self.strand][key] # 序列信息 ^T, $A等
 
             if re.search(r'{value}'.format(**locals()), base_info[key]):

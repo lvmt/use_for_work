@@ -49,18 +49,18 @@ pattern8:
 pattern17:
   +:
     left: ^AG
-    ins: AG$
+    'left_ins': AG$
   -:
     right: ^CT
-    ins: AG$
+    'ins_right': ^CT
 
 pattern19:
   +:
     right: ^GT
-    ins: ^GT
+    'ins_right': ^GT
   -:
-    left: ^AC
-    ins: ^GT
+    left: AC$
+    'left_ins': AC$
 
 
 # pattern18:
