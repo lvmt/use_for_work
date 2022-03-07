@@ -97,15 +97,11 @@ splice_info = {
         'pattern8': pattern8,
         'pattern9': pattern9,
         'pattern10': pattern10,
-        'pattern11': pattern11,
         'pattern12': pattern12,
     },
 
     'snp': {
         'pattern13': pattern13,
-        'pattern14': pattern14,
-        'pattern15': pattern15,
-        'pattern16': pattern16
     }
 }
 
