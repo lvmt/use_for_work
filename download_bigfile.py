@@ -10,6 +10,7 @@
 '''
 对大文件进行切割下载
 文件总大小，一次下载大小，分割文件前缀，下载文件路径
+一次下载大小不要超过200M
 '''
 
 # here put the import lib
@@ -66,7 +67,7 @@ class Download:
 
 
     def write_merge_shell(self, part_list):
-        with open(self.shellname + '.cat', 'w') as fw:
+        with open(self.shellname + '.cat.sh', 'w') as fw:
             fw.write('cat ')
             for part in part_list:
                 fw.write('{} '.format(part))
@@ -87,13 +88,21 @@ if __name__ == '__main__':
     parser.add_argument('--block_size', type=int, help='切割文件大小,建议M单位大小')
     parser.add_argument('--file_size', type=float, help='待下载文件大小,误差不要超过一个block_size')
     parser.add_argument('--suffix', help='切割结果前缀')
-    parser.add_argument('--result', help='输出文件')
-    parser.add_argument('--shellname', help='download的文件名称')
+    parser.add_argument('--result', help='最终合并结果名称')
+    parser.add_argument('--shellname', help='download的shell名称')
     parser.add_argument('--url', help='带下载文件地址')
 
     args = vars(parser.parse_args())
 
     dd = Download(args).start()
 
-
-
+    # python xx.py --block_size 200 --file_size xxx --suffix refseq.part --result refseq.tar.gz
+    """
+    python download_bigfile.py
+        --block_size 200000000 # 单位K
+        --file_size  14029086699 （网站上有显示）
+        --suffix download.part (切割块前缀)
+        --result merge.gz
+        --shellname download.sh
+        --url http://ftp.ensembl.org/pub/release-104/variation/indexed_vep_cache/homo_sapiens_refseq_vep_104_GRCh37.tar.gz
+    """
