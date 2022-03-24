@@ -57,7 +57,7 @@ class GeneExtendCheck:
     def start(self):
         gene_extend_info = self.get_gene_extend_info()
         if self.func == 'frameshift':
-            origin_length = gene_extend_info[self.tran]
+            origin_length = gene_extend_info.get(self.tran, 20000)  # 防止库文件没有该信息
             new_length = self.get_newlength()
             if new_length > int(origin_length):
                 return 'Y'

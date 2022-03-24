@@ -27,7 +27,7 @@ from sqlalchemy import desc
 import yaml
 import re
 # from simplify import simplify_vep_annotation
-# import utils  
+import utils  
 
 
 
@@ -178,7 +178,7 @@ class TransverFunction:
                 else:
                     # 多个区间信息,没有氨基酸注释,不会是fs,missense
                     if re.findall('(\d+)[+-][12]($|[a-zA-Z])', hgvsc[0]):
-                        return 'splice-5'
+                        return 'splice-5'   # 想想为啥是这个
                     else:
                         return 'intro'
             

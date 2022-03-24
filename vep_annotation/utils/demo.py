@@ -4,15 +4,15 @@
 import utils
 
 
-class ROW:
-    def __init__(self):
-        self.name = '*'
-        self.age = '*'
-        self.sex = '*'
+# class ROW:
+#     def __init__(self):
+#         self.name = '*'
+#         self.age = '*'
+#         self.sex = '*'
 
-    def update_head(self, **args):
-        self.__dict__.update(args)      
-        return self
+#     def update_head(self, **args):
+#         self.__dict__.update(args)      
+#         return self
 
 
 # tmp = ROW()
@@ -38,9 +38,9 @@ class ROW:
 #     print(utils.get_oneletter_hgvsp(hgvsp))
 
 
-### test reverse_com
-base = 'A'
-print(utils.reverse_complement(base))
+# ### test reverse_com
+# base = 'A'
+# print(utils.reverse_complement(base))
 
 
 ### test snv vcf info 
@@ -69,3 +69,7 @@ print(utils.reverse_complement(base))
 # print('delins', utils.modify_pos_ref_alt(1295028, 'GT', 'CC'))
 # print('delins', utils.modify_pos_ref_alt(1295028, 'G', 'CC'))
 
+#######  测试exon_id顺序问题  ############
+exon_func = utils.get_exon_id
+
+print(exon_func('12/18', '11-12/17'))

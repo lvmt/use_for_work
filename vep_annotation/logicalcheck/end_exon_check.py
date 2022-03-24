@@ -79,8 +79,8 @@ class EndExonCheck:
 
     def start(self):
         end_exon_info = self.get_end_exon_info()
-        region_start, region_end, strand = end_exon_info[self.tran]
-
+        # region_start, region_end, strand = end_exon_info[self.tran]
+        region_start, region_end, strand = end_exon_info.get(self.tran, ('chr25', 0, 0))  # 防止库文件没有对应的转录本报错
         target_func = ['frameshift', 'nonsense', 'splice-3', 'splice-5', 'span']
         
         if self.func in target_func and strand == '+':
