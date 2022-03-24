@@ -33,14 +33,19 @@ class FilterFunc:
         return func_list
     
     
-    def save_span(self, chgvs, bgi_func):
+    def save_span(self, chgvs, bgi_func, vep_func):
         '''只保留特定类型的span
         只要其中一端位于保留区域即可以保留（基于chgvs）
         c.*100/c.-100 直接不要
         c.100+x (x<=2保留, 其他不要)
+        20220324：某些特例NM_005243.3:c.1932-21_*9del,
+        针对特例，需要利用vep_func，判断其中是否存在coding_sequence_variant
         '''
         if bgi_func == 'span' and chgvs == '-':  # 有些span可能没有chgvs注释,多位于UTR区域
             return False
+
+        if bgi_func == 'span' and 'coding_sequence_variant' in vep_func:
+            return True
 
         splice_p = re.compile(r'(\d+)[+-][12]($|[a-zA-Z])')  # 满足条件的+-1/2; 100-2或者100-2delins
         exon_p = re.compile(r'(\d+)($|[a-zA-Z])')  # 满足条件的exon; 100或者100delins
@@ -82,12 +87,13 @@ class FilterFunc:
                     continue
                 linelist = line.strip('').split('\t')
                 bgi_func = linelist[head_index['bgi_function']]  # nonsense
+                vep_func = linelist[head_index['consequence']]  # 原始vep注释结果
                 gene = linelist[head_index['hugo_symbol']] # TERT
                 chgvs = linelist[head_index['hgvsc']] # c.-146C>T
 
                 # 针对8个tert启动子，构造特殊key
                 tert_promter = '{gene}:{chgvs}'.format(**locals()) 
-                if bgi_func in func_list and self.save_span(chgvs, bgi_func) or tert_promter in func_list:
+                if bgi_func in func_list and self.save_span(chgvs, bgi_func, vep_func) or tert_promter in func_list:
                     fw_pass.write(line)
                 else:
                     fw_fail.write(line)
