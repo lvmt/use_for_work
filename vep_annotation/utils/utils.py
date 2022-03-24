@@ -14,6 +14,7 @@
 
 import re 
 import subprocess
+from threading import local
 
 
 acid_info = {
@@ -200,15 +201,29 @@ def get_exon_id(exon_info, intro_info):
     input: 2/16
     特殊：对于span位点，会同时存在exon和intro：2021-1201
     特殊：存在大片段跨区变异：2021-1213
-    15/18 14-15/17
+    15/18 14-15/17， （6-7/19  6/18）
+    # 20220321:调整exon和intro顺序
     '''
     exon_info = exon_info.split('/')[0]
     intro_info = intro_info.split('/')[0]
     
     if exon_info == intro_info == '-':
         return '-'
-    elif not exon_info == '-' and not intro_info == '-':
-        return 'IVS{intro_info}-EX{exon_info}'.format(**locals())
+    elif not exon_info == '-' and not intro_info == '-':  
+        # 同时存在exon和intro, span类型, 大概存在3中情况 
+        # 1. 6-7/19 6/18
+        # 2. 6/19, 5-6/18
+        # 3. 6/19, 6/18
+        if '-' in exon_info:
+            l,r = exon_info.split('-')
+            return 'EX{l}-IVS{intro_info}-EX{r}'.format(**locals())
+        elif '-' in  intro_info:
+            l,r = intro_info.split('-')
+            return 'IVS{l}-EX{exon_info}-IVS{r}'.format(**locals())
+        elif int(intro_info) >= int(exon_info):
+            return 'EX{exon_info}-IVS{intro_info}'.format(**locals())
+        else:
+            return 'IVS{intro_info}-EX{exon_info}'.format(**locals())
     elif not exon_info == '-':
         return 'EX{exon_info}'.format(**locals())
     elif not intro_info == '-':
