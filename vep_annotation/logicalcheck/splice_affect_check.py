@@ -182,6 +182,11 @@ class SpliceAffectCheck:
         target_pattern = self.get_target_pattern(pattern_info)
         # print('测试:', target_pattern)
 
+        #针对未知情况作出保留判断,后续的newfunction需作出对应修改
+        # c.2034_*5del
+        if target_pattern == 'None':
+            return 'N-unknown'
+
         ## 
         if target_pattern in affect_pattern_list:
             return 'Y'
@@ -214,6 +219,8 @@ class SpliceAffectCheck:
         pattern_info = span_info
         target_pattern = self.get_target_pattern(pattern_info)  # 字符串
         # print('测试:', target_pattern)
+        if target_pattern == 'None':
+            return 'N-unknown'
 
         if target_pattern in affect_pattern_list:
             return 'Y'
