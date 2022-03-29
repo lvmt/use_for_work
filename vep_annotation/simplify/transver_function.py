@@ -161,7 +161,7 @@ class TransverFunction:
                     return 'splice-3'
                 elif re.search(r'(\d+)[+][12]($|[a-zA-Z])', hgvsc[0]):
                     return 'splice-5'
-                elif re.search(r'(\d+)[+-][3-9]*', hgvsc[0]):
+                elif re.search(r'(\d+)[+-]([3-9]|\d\d+)*', hgvsc[0]):  # 如果为个位数只能是3-9
                     return 'intro'
                 else:
                     return 'null'
@@ -246,6 +246,8 @@ if __name__ == '__main__':
             ref, alt = utils.get_ref_alt_from_upload_variation(upload_variation)
             vep_simple_function = TransverFunction(**args).simplify_function(vep_function, tert, gene)
             vep2bgicg_function = TransverFunction(**args).vep2bgi(vep_simple_function, hgvsc, hgvsp, ref, alt)
+
+            # 一个异常的特例
 
             fw.write('{}\t{}\t{}\n'.format('\t'.join(linelist), vep_simple_function, vep2bgicg_function))
 
