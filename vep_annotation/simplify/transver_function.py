@@ -81,7 +81,7 @@ class TransverFunction:
             return better_func
 
 
-    def vep2bgi(self, simplify_vep_func, hgvsc, hgvsp, ref, alt):
+    def vep2bgi(self, simplify_vep_func, hgvsc, hgvsp, ref, alt, exon):
         '''将vep的func转化为bgi的func
         优先处理protein_altering_variant
         优先处理coding_sequence_variant
@@ -96,7 +96,7 @@ class TransverFunction:
             # return 'coding_sequence_variant'
             return self.handle_coding_sequence_variant_from_chgvs_phgvs(hgvsc, hgvsp, ref, alt)
         elif simplify_vep_func == 'span':
-            return self.correct_span(hgvsp, ref, alt)
+            return self.correct_span(hgvsp, ref, alt, exon)
         elif simplify_vep_func.startswith('splice'):
             return self.correct_splice(hgvsc)
         else:
@@ -184,7 +184,7 @@ class TransverFunction:
             
 
             
-    def correct_span(self, hgvsp, ref, alt):
+    def correct_span(self, hgvsp, ref, alt, exon):
         '''
         vep中出现一类特殊案例
         splice_acceptor_variant&frameshift_variant&intron_variant
@@ -192,6 +192,10 @@ class TransverFunction:
         因此对于注释为span的类型，我们需要进行再次矫正
         '''
         if hgvsp == '-':
+            return 'span'
+        elif len(exon.split('-')) > 1: 
+             # 特例：NM_001353047.2:c.627_704delinsCGTCGAATGAAACGGATGGAATTTAGAATCTTCAAATTCAAAGTATTCCTTGAATACAGATTACTCAGTGTCTTCTAC
+             # 跨越内含子，但是phgvs存在注释内容
             return 'span'
         else:
             return self.handle_protein_altering_variant_from_hgvsp(hgvsp, ref, alt)

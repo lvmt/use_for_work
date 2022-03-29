@@ -161,7 +161,13 @@ class SimpleVep:
                 genotype = utils.get_genotype(ref, alt, strand)
                 flank = utils.get_flank_according_upload_variation(upload_variation, args['hg19'])
                 vep_simple_function = TransverFunction(**args).simplify_function(vep_function, tert, gene)
-                vep2bgicg_function = TransverFunction(**args).vep2bgi(vep_simple_function, hgvsc, hgvsp, ref, alt)
+                vep2bgicg_function = TransverFunction(**args).vep2bgi(vep_simple_function, hgvsc, hgvsp, ref, alt, exon_id)
+
+                ## 存在特殊情况,span,跨越整个内含子,但是phgvs还存在注释信息,这种是错误的
+                ## 针对这种情况，需要对span类型的phgvs赋空值
+                if vep2bgicg_function == 'span' and (not hgvsp == '-'):
+                    hgvsp = '-'
+                    hgvsp_short = '-'
 
                 # 更新row
                 row.gene = gene 
