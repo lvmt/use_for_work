@@ -15,6 +15,7 @@
 
 
 
+from ast import pattern
 from os import pardir
 import re  
 
@@ -46,11 +47,12 @@ class GeneExtendCheck:
         '''判断发生fs变异后，新蛋白质的长度
         '''
         # pattern = re.compile(r'p.[A-Z]+(\d+)[A-Za-z\*]+(\d+)') # p.Q118Kfs*4 
-        pattern = re.compile(r'p.[A-Z]+(\d+)[A-Za-z\*]+(\d*)')  #  特例：p.Y370*
+        # pattern = re.compile(r'p.[A-Z]+(\d+)[A-Za-z\*]+(\d*)')  #  特例：p.Y370*
+        pattern = re.compile(r'\d+')
         if re.search(pattern, self.phgvs):
             # pos1, pos2 = re.search(pattern, self.phgvs).groups()  # 特例：p.Y370*
-            pos_list = re.search(pattern, self.phgvs).groups()  # 特例：p.Y370*
-            return sum(map(int, filter(str, pos_list))) - 1 
+            pos_list = re.findall(pattern, self.phgvs)  # 特例：p.Y370*
+            return sum(map(int, pos_list)) - 1 
         return 'compile wrong'
  
 
