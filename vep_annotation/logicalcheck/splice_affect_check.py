@@ -80,7 +80,7 @@ pattern13 = re.compile(r'c.(\d+)[+-][12][A-Z]>')  # c.111+2T>C, 一定影响剪�
 pattern17 = re.compile(r'(\d+)[+-]\d+_(\d+)[a-zA-Z]')  # c.212-4_213del; c.4206+2_4206del, sample1 & sample2
 pattern18 = re.compile(r'(\d+)[+-]\d+_(\d+)[+-]\d+') # 跨越exon, 直接影响剪切, sample3,4,5,6
 pattern19 = re.compile(r'(\d+)_(\d+)[+-]\d+') # c.4197_4206+27del; c.139_156-28del, sample7 & sample8
-pattern20 = p4 = re.compile(r'(\d+)_(\d+)') # 跨越内含子，两端位于不同的exon上， 直接影响剪切
+pattern20 = re.compile(r'(\d+)_(\d+)') # 跨越内含子，两端位于不同的exon上， 直接影响剪切
 
 
 splice_info = {
